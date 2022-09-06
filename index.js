@@ -1,15 +1,16 @@
 import TelegramBot from "node-telegram-bot-api";
 import Censor from "clean-armenian"
 import express from "express"
+import * as dotenv from 'dotenv'
+dotenv.config()
 let LastMessage = [];
 let Output = 0;
-const Token = ""
 const app = express()
 app.use(express.urlencoded({ extended: false }))
-const bot = new TelegramBot(Token, { polling: true });
+const bot = new TelegramBot(process.env.TOKEN, { polling: true });
 
 
-let fix = function(val){
+const fix = function(val){
   console.log (val)
   Output = Censor(val)
   return Output
@@ -20,10 +21,6 @@ bot.on("message", (msg) => {
   LastMessage[0] = msg.text.toString()
   fix(LastMessage[0])
   bot.sendMessage(chatId, '👍');
-  app.post('/send',(req,res)=>{
-    res.redirect('/')
-    
-  })
 });
 
 
@@ -42,6 +39,15 @@ app.get('/', (req, res) => {
      
 })
 
+app.get('/output', (req, res) => {
+  res.send(`
+
+     <p>${Output}<p>
+     `
+     )
+     
+})
+
 
 
 app.post('/send',(req,res)=>{
@@ -53,6 +59,6 @@ app.post('/send',(req,res)=>{
 
 LastMessage[0] = 0;
 
-app.listen(3000, () => {
+app.listen(process.env.PORT, () => {
   console.log(`Running`)
 })
